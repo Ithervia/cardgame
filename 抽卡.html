@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ 偶像梦幻祭 - 抽卡模拟器（本地图片版）</title>
+    <style>
+        :root {
+            --bg: #1a1a2e;
+            --surface: #16213e;
+            --surface2: #0f3460;
+            --gold: #f0c060;
+            --gold-light: #ffe9b0;
+            --gold-dark: #c08030;
+            --text: #e0d8c8;
+            --text-light: #c0b8a8;
+            --accent: #e94560;
+            --pack-width: 150px;
+            --pack-height: 200px;
+            --card-mini-w: 80px;
+            --card-mini-h: 112px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(233, 68, 96, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 60%, rgba(240, 192, 96, 0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 80%, rgba(100, 140, 220, 0.06) 0%, transparent 50%);
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        #particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        .particle {
+            position: absolute;
+            pointer-events: none;
+            animation: particleFly 1.2s ease-out forwards;
+            font-size: 20px;
+            z-index: 9999;
+        }
+        @keyframes particleFly {
+            0% {
+                transform: translate(0, 0) scale(1.2);
+                opacity: 1;
+            }
+            30% {
+                opacity: 1;
+            }
+            100% {
+                transform: translate(var(--dx), var(--dy)) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .header {
+            text-align: center;
+            padding: 28px 20px 10px;
+            position: relative;
+        }
+        .header .logo {
+            font-size: 2.6em;
+            font-weight: 900;
+            letter-spacing: 0.06em;
+            background: linear-gradient(180deg, #ffe9b0 0%, #f0c060 40%, #c08030 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            filter: drop-shadow(0 2px 6px rgba(240, 192, 96, 0.5));
+            margin-bottom: 4px;
+        }
+        .header .subtitle {
+            font-size: 0.95em;
+            color: var(--text-light);
+            letter-spacing: 0.08em;
+            opacity: 0.75;
+        }
+
+        .main-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+
+        .info-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 16px;
+            margin: 18px 0 10px;
+            align-items: center;
+        }
+        .info-badge {
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 28px;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9em;
+            letter-spacing: 0.03em;
+            transition: all 0.3s;
+        }
+        .info-badge .icon {
+            font-size: 1.3em;
+        }
+        .info-badge .count {
+            font-weight: 700;
+            color: var(--gold);
+            font-size: 1.1em;
+        }
+        .info-badge.signature-found {
+            border-color: rgba(240, 192, 96, 0.5);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        @keyframes glowPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(240, 192, 96, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 20px rgba(240, 192, 96, 0.45);
+            }
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 22px;
+            border-radius: 28px;
+            font-size: 0.9em;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s;
+            font-family: inherit;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #e94560, #c0392b);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(233, 68, 96, 0.35);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(233, 68, 96, 0.5);
+        }
+        .btn-primary:active {
+            transform: scale(0.96);
+        }
+        .btn-outline {
+            background: transparent;
+            border: 2px solid rgba(255, 255, 255, 0.25);
+            color: var(--text);
+        }
+        .btn-outline:hover {
+            border-color: var(--gold);
+            color: var(--gold);
+            box-shadow: 0 0 12px rgba(240, 192, 96, 0.2);
+        }
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 0.78em;
+            border-radius: 20px;
+        }
+
+        .packs-section {
+            margin-top: 16px;
+        }
+        .packs-section .section-label {
+            font-size: 1em;
+            letter-spacing: 0.05em;
+            color: var(--text-light);
+            margin-bottom: 12px;
+            text-align: center;
+            opacity: 0.7;
+        }
+        .packs-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            justify-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        @media (max-width: 850px) {
+            .packs-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+        }
+        @media (max-width: 600px) {
+            .packs-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            :root {
+                --pack-width: 120px;
+                --pack-height: 165px;
+                --card-mini-w: 60px;
+                --card-mini-h: 84px;
+            }
+        }
+        @media (max-width: 400px) {
+            .packs-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            :root {
+                --pack-width: 130px;
+                --pack-height: 175px;
+                --card-mini-w: 64px;
+                --card-mini-h: 90px;
+            }
+        }
+
+        .pack-wrapper {
+            perspective: 800px;
+            width: var(--pack-width);
+            height: var(--pack-height);
+            cursor: pointer;
+            position: relative;
+        }
+        .pack-wrapper.opened {
+            cursor: default;
+            perspective: none;
+        }
+        .pack-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .pack-wrapper.tearing .pack-inner {
+            animation: packShake 0.5s ease-in-out;
+        }
+        @keyframes packShake {
+            0%,
+            100% {
+                transform: rotate(0);
+            }
+            15% {
+                transform: rotate(-6deg) scale(1.03);
+            }
+            30% {
+                transform: rotate(5deg) scale(1.04);
+            }
+            45% {
+                transform: rotate(-4deg) scale(1.02);
+            }
+            60% {
+                transform: rotate(3deg) scale(1.03);
+            }
+            75% {
+                transform: rotate(-1.5deg) scale(1.01);
+            }
+            90% {
+                transform: rotate(0.5deg);
+            }
+        }
+
+        .pack-sealed {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 14px;
+            background: linear-gradient(160deg, #3a3a5c 0%, #252540 30%, #1e1e38 60%, #2a2a48 100%);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+        .pack-sealed::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: -20%;
+            width: 140%;
+            height: 80%;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
+            transform: rotate(-5deg);
+            pointer-events: none;
+        }
+        .pack-sealed::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        .pack-sealed .pack-number {
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.05em;
+            position: relative;
+            z-index: 1;
+        }
+        .pack-sealed .pack-icon {
+            font-size: 2.4em;
+            position: relative;
+            z-index: 1;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+        .pack-sealed .pack-label {
+            font-size: 0.7em;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.06em;
+            position: relative;
+            z-index: 1;
+        }
+        .pack-wrapper:not(.opened):hover .pack-sealed {
+            border-color: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 0 20px rgba(240, 192, 96, 0.15);
+            transform: translateY(-4px);
+        }
+        .pack-wrapper:not(.opened):active .pack-sealed {
+            transform: scale(0.95);
+            transition: transform 0.1s;
+        }
+
+        .pack-opened {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 14px;
+            background: var(--surface);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            padding: 6px 4px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            transform: rotateY(180deg);
+        }
+        .pack-wrapper.opened .pack-inner {
+            transform: rotateY(180deg);
+        }
+        .pack-opened .mini-cards-row {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .mini-card {
+            width: var(--card-mini-w);
+            height: var(--card-mini-h);
+            border-radius: 6px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+            transition: transform 0.3s;
+            cursor: default;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            background-color: #222;
+        }
+        .mini-card:hover {
+            transform: scale(1.25);
+            z-index: 10;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+        }
+        .mini-card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+        .mini-card .mini-card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6em;
+            z-index: 0;
+        }
+        .mini-card .mini-card-num {
+            position: absolute;
+            bottom: 3px;
+            right: 5px;
+            font-size: 0.55em;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 700;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+            z-index: 2;
+        }
+        .mini-card.signature-mini {
+            border: 2px solid var(--gold) !important;
+            box-shadow: 0 0 10px rgba(240, 192, 96, 0.6), 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+            animation: miniGlow 1.8s ease-in-out infinite;
+        }
+        @keyframes miniGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 8px rgba(240, 192, 96, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 18px rgba(240, 192, 96, 0.8), 0 2px 8px rgba(0, 0, 0, 0.3);
+            }
+        }
+        .mini-card .sig-badge {
+            position: absolute;
+            top: 3px;
+            left: 4px;
+            font-size: 0.5em;
+            color: var(--gold-dark);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 1px 4px;
+            border-radius: 3px;
+            z-index: 3;
+        }
+
+        .collection-panel {
+            margin-top: 30px;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .collection-panel h3 {
+            text-align: center;
+            letter-spacing: 0.05em;
+            margin-bottom: 14px;
+            font-size: 1em;
+            color: var(--text-light);
+        }
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+            gap: 6px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .collection-cell {
+            aspect-ratio: 2.5/3.5;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.65em;
+            color: rgba(255, 255, 255, 0.25);
+            position: relative;
+            transition: all 0.3s;
+            cursor: default;
+        }
+        .collection-cell.collected-normal {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        .collection-cell.collected-signature {
+            background: rgba(240, 192, 96, 0.2);
+            border-color: var(--gold);
+            color: var(--gold-light);
+            box-shadow: 0 0 6px rgba(240, 192, 96, 0.3);
+            font-weight: 700;
+        }
+        .collection-cell.collected-both {
+            background: linear-gradient(135deg, rgba(240, 192, 96, 0.25), rgba(255, 255, 255, 0.12));
+            border-color: var(--gold);
+            color: var(--gold-light);
+            box-shadow: 0 0 10px rgba(240, 192, 96, 0.45);
+            font-weight: 700;
+        }
+        .collection-cell .cell-emoji {
+            font-size: 1.1em;
+        }
+        .collection-cell .cell-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 3px;
+            font-size: 0.5em;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.25s ease-out;
+        }
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+        .modal-card {
+            background: var(--surface2);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            max-width: 380px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            animation: modalPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes modalPopIn {
+            from {
+                transform: scale(0.7);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        .modal-card .big-card-display {
+            width: 160px;
+            height: 224px;
+            margin: 0 auto 16px;
+            border-radius: 12px;
+            position: relative;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            background-color: #222;
+            overflow: hidden;
+        }
+        .big-card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+        }
+        .big-card-emoji {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+            z-index: 0;
+        }
+        .modal-card .big-card-display.signature-display {
+            border: 4px solid var(--gold);
+            box-shadow: 0 0 30px rgba(240, 192, 96, 0.7), 0 8px 30px rgba(0, 0, 0, 0.5);
+            animation: sigBigGlow 1.5s ease-in-out infinite;
+        }
+        @keyframes sigBigGlow {
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(240, 192, 96, 0.5), 0 8px 30px rgba(0, 0, 0, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 45px rgba(240, 192, 96, 0.9), 0 8px 30px rgba(0, 0, 0, 0.5);
+            }
+        }
+        .modal-card .sig-label {
+            display: inline-block;
+            background: linear-gradient(135deg, #f0c060, #c08030);
+            color: #1a1a2e;
+            padding: 4px 14px;
+            border-radius: 14px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.5);
+            transition: color 0.3s;
+            background: none;
+            border: none;
+        }
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface2);
+            color: var(--gold-light);
+            padding: 12px 24px;
+            border-radius: 28px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            z-index: 2000;
+            border: 1px solid var(--gold);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            animation: toastIn 0.4s ease-out, toastOut 0.4s 1.6s ease-in forwards;
+            pointer-events: none;
+        }
+        @keyframes toastIn {
+            from {
+                transform: translateX(-50%) translateY(-60px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px);
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 500px) {
+            .header .logo {
+                font-size: 1.8em;
+            }
+            .info-badge {
+                padding: 7px 14px;
+                font-size: 0.78em;
+                gap: 4px;
+            }
+            .btn {
+                padding: 8px 16px;
+                font-size: 0.78em;
+            }
+            .modal-card .big-card-display {
+                width: 120px;
+                height: 168px;
+            }
+            .big-card-emoji {
+                font-size: 3.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="particles-container"></div>
+
+    <div class="header">
+        <div class="logo">✨ 偶像梦幻祭</div>
+        <div class="subtitle">一盒10包 · 每包3张 · 必出2张签名卡 · 同包无双签</div>
+    </div>
+
+    <div class="main-container">
+        <div class="info-bar" id="infoBar">
+            <div class="info-badge">
+                <span class="icon">📦</span> 已开盒数：<span class="count" id="totalBoxes">0</span>
+            </div>
+            <div class="info-badge">
+                <span class="icon">🎁</span> 当前包：<span class="count" id="openedCount">0</span>/10
+            </div>
+            <div class="info-badge signature-found" id="sigBadge" style="opacity:0.5;">
+                <span class="icon">✍️</span> 签名卡：<span class="count" id="sigFound">0</span>/2
+            </div>
+            <div class="info-badge">
+                <span class="icon">📚</span> 图鉴收集：<span class="count" id="collectionProgress">0</span>/49
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="openAllPacks()" id="btnOpenAll">
+                ⚡ 全部开启
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="resetBox()">
+                🔄 新盒
+            </button>
+        </div>
+
+        <div class="packs-section">
+            <div class="section-label">📦 点击卡包来开启</div>
+            <div class="packs-grid" id="packsGrid"></div>
+        </div>
+
+        <div class="collection-panel" id="collectionPanel">
+            <h3>📚 收集图鉴（49种卡片）</h3>
+            <div class="collection-grid" id="collectionGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay" style="display:none;" onclick="closeModal(event)">
+        <div class="modal-card" id="modalCard" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModalDirect()">✕</button>
+            <div class="big-card-display" id="bigCardDisplay">
+                <img class="big-card-img" id="bigCardImg" src="" alt="" style="display:none;">
+                <div class="big-card-emoji" id="bigCardEmoji"></div>
+            </div>
+            <div style="font-weight:700;font-size:1.1em;margin-top:6px;" id="bigCardName"></div>
+            <div class="sig-label" id="bigCardSigLabel" style="display:none;">✍️ 签名版</div>
+            <div style="font-size:0.8em;color:var(--text-light);margin-top:4px;" id="bigCardId"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ==================== 本地图片配置（在这里修改路径和命名规则） ====================
+            const IMAGE_BASE_PATH = 'https://github.com/Ithervia/cardgame/raw/main/';       // 图片文件夹
+            const IMAGE_EXTENSION = '.png';          // 图片扩展名
+
+            // 普通版图片命名规则：例如 card_1.png ~ card_49.png
+            function getNormalImageUrl(cardId) {
+                return `${IMAGE_BASE_PATH}card_${cardId}${IMAGE_EXTENSION}`;
+            }
+
+            // 签名版图片命名规则：默认偏移 +49，即 card_50.png ~ card_98.png
+            // 如果您使用其他命名规则，例如 card_1_signature.png，只需修改这个函数即可
+            function getSignatureImageUrl(cardId) {
+                return `${IMAGE_BASE_PATH}card_${cardId + 49}${IMAGE_EXTENSION}`;
+                // 其他常见命名示例（取消注释即可用）：
+                // return `${IMAGE_BASE_PATH}card_${cardId}_sig${IMAGE_EXTENSION}`;
+                // return `${IMAGE_BASE_PATH}signature/card_${cardId}${IMAGE_EXTENSION}`;
+            }
+
+            // ==================== 卡片数据 ====================
+            const CARD_EMOJIS = [
+                '🐉', '🦋', '🌸', '🦊', '🐺', '🦅', '🐍', '🦈', '🦄', '🐲',
+                '🌙', '⭐', '🔥', '💎', '🍀', '🌹', '🦁', '🐯', '🐻', '🐼',
+                '🦉', '🦇', '🦚', '🦜', '🐬', '🐳', '🦑', '🦀', '🐙', '🗡️',
+                '🛡️', '🏆', '👑', '💀', '🎭', '🎪', '🎨', '🎵', '🚀', '🌈',
+                '🍄', '🌺', '🌻', '🐞', '🌟', '❄️', '🕯️', '⚡', '🧿'
+            ];
+            const CARD_NAMES = [
+                '天祥院英智', '日日树涉', '姬宫桃李', '伏见弓弦', '冰鹰北斗', '明星昴流', '游木真', '衣更真绪', '守泽千秋', '深海奏汰',
+                '南云铁虎', '仙石忍', '高峯翠', '天城一彩', '白鸟蓝良', '风早巽', '礼濑真宵', '乱凪砂', '巴日和', '七种茨',
+                '涟纯', '斋宫宗', '影片美伽', '葵日向', '葵裕太', '天城燐音', 'Himeru', '樱河琥珀', '椎名丹希', '朔间零',
+                '羽风薰', '大神晃牙', '阿多尼斯', '真白友也', '仁兔成鸣', '紫之创', '天满光', '莲巳敬人', '鬼龙红郎', '神崎飒马',
+                '逆先夏目', '青叶纺', '春川宙', '三毛镐斑', '朱樱司', '月永雷欧', '濑名泉', '鸣上岚', '朔间凛月'
+            ];
+
+            function getCardColor(index) {
+                const hue = (index * 7.35) % 360;
+                const saturation = 55 + (index % 5) * 8;
+                const lightness = 40 + (index % 7) * 4;
+                return {
+                    bg: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
+                    bgLight: `hsl(${hue}, ${saturation}%, ${lightness + 15}%)`,
+                    bgDark: `hsl(${hue}, ${saturation}%, ${lightness - 10}%)`,
+                    hue,
+                    saturation,
+                    lightness
+                };
+            }
+
+            const allCardDefs = [];
+            for (let i = 0; i < 49; i++) {
+                const color = getCardColor(i);
+                const cardId = i + 1;
+                allCardDefs.push({
+                    id: cardId,
+                    emoji: CARD_EMOJIS[i],
+                    name: CARD_NAMES[i],
+                    color: color,
+                    imageNormal: getNormalImageUrl(cardId),
+                    imageSignature: getSignatureImageUrl(cardId),
+                });
+            }
+
+            // ==================== 状态管理 ====================
+            const TOTAL_PACKS = 10;
+            const CARDS_PER_PACK = 3;
+            const TOTAL_CARDS = 30;
+            const TOTAL_UNIQUE = 49;
+            const GUARANTEED_SIGNATURES = 2;
+
+            let currentBox = null;
+            let collection = { normal: new Set(), signature: new Set() };
+            let totalBoxesOpened = 0;
+
+            function loadCollection() {
+                try {
+                    const raw = localStorage.getItem('starcard_collection');
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        collection.normal = new Set(data.normal || []);
+                        collection.signature = new Set(data.signature || []);
+                    }
+                } catch (e) {
+                    collection = { normal: new Set(), signature: new Set() };
+                }
+            }
+
+            function saveCollection() {
+                try {
+                    const data = {
+                        normal: Array.from(collection.normal),
+                        signature: Array.from(collection.signature),
+                    };
+                    localStorage.setItem('starcard_collection', JSON.stringify(data));
+                } catch (e) {}
+            }
+
+            function loadTotalBoxes() {
+                try {
+                    const saved = localStorage.getItem('starcard_totalBoxes');
+                    if (saved !== null) {
+                        totalBoxesOpened = parseInt(saved, 10) || 0;
+                    }
+                } catch (e) {
+                    totalBoxesOpened = 0;
+                }
+            }
+
+            function saveTotalBoxes() {
+                try {
+                    localStorage.setItem('starcard_totalBoxes', totalBoxesOpened.toString());
+                } catch (e) {}
+            }
+
+            function loadCurrentBox() {
+                try {
+                    const raw = localStorage.getItem('starcard_currentBox');
+                    if (raw) {
+                        const data = JSON.parse(raw);
+                        currentBox = {
+                            cards: data.cards,
+                            packs: data.packs,
+                            openedPacks: new Set(data.openedPacks || []),
+                        };
+                        return true;
+                    }
+                } catch (e) {}
+                return false;
+            }
+
+            function saveCurrentBox() {
+                if (!currentBox) return;
+                try {
+                    const data = {
+                        cards: currentBox.cards,
+                        packs: currentBox.packs,
+                        openedPacks: Array.from(currentBox.openedPacks),
+                    };
+                    localStorage.setItem('starcard_currentBox', JSON.stringify(data));
+                } catch (e) {}
+            }
+
+            function clearCurrentBoxStorage() {
+                try {
+                    localStorage.removeItem('starcard_currentBox');
+                } catch (e) {}
+            }
+
+            // ==================== 生成新盒 ====================
+            function generateNewBox() {
+                const shuffledAll = [...allCardDefs].sort(() => Math.random() - 0.5);
+                const selected30 = shuffledAll.slice(0, TOTAL_CARDS);
+
+                const sigIndices = new Set();
+                while (sigIndices.size < GUARANTEED_SIGNATURES) {
+                    sigIndices.add(Math.floor(Math.random() * TOTAL_CARDS));
+                }
+                const cards = selected30.map((def, idx) => ({
+                    id: def.id,
+                    isSignature: sigIndices.has(idx),
+                }));
+
+                const sigCards = cards.filter(c => c.isSignature);
+                const normalCards = cards.filter(c => !c.isSignature);
+
+                const packs = Array.from({ length: TOTAL_PACKS }, () => []);
+                const packIndices = Array.from({ length: TOTAL_PACKS }, (_, i) => i);
+                for (let i = packIndices.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [packIndices[i], packIndices[j]] = [packIndices[j], packIndices[i]];
+                }
+                const sigPackIndices = packIndices.slice(0, GUARANTEED_SIGNATURES);
+                sigCards.forEach((card, i) => {
+                    packs[sigPackIndices[i]].push(card);
+                });
+
+                const shuffledNormals = [...normalCards].sort(() => Math.random() - 0.5);
+                let normalIdx = 0;
+                for (let p = 0; p < TOTAL_PACKS; p++) {
+                    const needed = CARDS_PER_PACK - packs[p].length;
+                    for (let i = 0; i < needed; i++) {
+                        packs[p].push(shuffledNormals[normalIdx++]);
+                    }
+                }
+
+                currentBox = {
+                    cards: cards,
+                    packs: packs,
+                    openedPacks: new Set(),
+                };
+                saveCurrentBox();
+            }
+
+            // ==================== 工具：获取卡片实际图片URL ====================
+            function getCardImage(cardId, isSignature) {
+                const def = allCardDefs.find(d => d.id === cardId);
+                if (!def) return '';
+                return isSignature ? def.imageSignature : def.imageNormal;
+            }
+
+            // ==================== 渲染 ====================
+            function renderAll() {
+                renderPacks();
+                renderCollectionGrid();
+                updateInfoBar();
+                document.getElementById('totalBoxes').textContent = totalBoxesOpened;
+            }
+
+            function renderPacks() {
+                const grid = document.getElementById('packsGrid');
+                grid.innerHTML = '';
+
+                for (let p = 0; p < TOTAL_PACKS; p++) {
+                    const isOpened = currentBox.openedPacks.has(p);
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'pack-wrapper' + (isOpened ? ' opened' : '');
+                    wrapper.dataset.packIndex = p;
+
+                    const inner = document.createElement('div');
+                    inner.className = 'pack-inner';
+
+                    const sealed = document.createElement('div');
+                    sealed.className = 'pack-sealed';
+                    sealed.innerHTML = `
+                        <span class="pack-number">#${p + 1}</span>
+                        <span class="pack-icon">🎁</span>
+                        <span class="pack-label">点击开启</span>
+                    `;
+
+                    const opened = document.createElement('div');
+                    opened.className = 'pack-opened';
+                    const miniRow = document.createElement('div');
+                    miniRow.className = 'mini-cards-row';
+
+                    if (isOpened) {
+                        const packCards = currentBox.packs[p];
+                        packCards.forEach(card => {
+                            const def = allCardDefs.find(d => d.id === card.id);
+                            const imgUrl = getCardImage(card.id, card.isSignature);
+                            const miniCard = document.createElement('div');
+                            miniCard.className = 'mini-card' + (card.isSignature ? ' signature-mini' : '');
+                            miniCard.style.background = `linear-gradient(150deg, ${def.color.bgLight}, ${def.color.bg}, ${def.color.bgDark})`;
+                            miniCard.innerHTML = `
+                                <img src="${imgUrl}" class="mini-card-img" onerror="this.style.display='none'" alt="${def.name}">
+                                <div class="mini-card-bg">${def.emoji}</div>
+                                <span class="mini-card-num">#${def.id}</span>
+                                ${card.isSignature ? '<span class="sig-badge">✍签名</span>' : ''}
+                            `;
+                            miniCard.title = `#${def.id} ${def.name}${card.isSignature ? ' [签名版]' : ''}`;
+                            miniCard.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                showCardModal(card);
+                            });
+                            miniRow.appendChild(miniCard);
+                        });
+                    }
+
+                    opened.appendChild(miniRow);
+                    inner.appendChild(sealed);
+                    inner.appendChild(opened);
+                    wrapper.appendChild(inner);
+
+                    if (!isOpened) {
+                        wrapper.addEventListener('click', () => openPack(p, wrapper));
+                    }
+
+                    grid.appendChild(wrapper);
+                }
+            }
+
+            function renderCollectionGrid() {
+                const grid = document.getElementById('collectionGrid');
+                grid.innerHTML = '';
+                for (let i = 0; i < TOTAL_UNIQUE; i++) {
+                    const def = allCardDefs[i];
+                    const cell = document.createElement('div');
+                    cell.className = 'collection-cell';
+                    const hasNormal = collection.normal.has(def.id);
+                    const hasSig = collection.signature.has(def.id);
+
+                    if (hasNormal && hasSig) {
+                        cell.classList.add('collected-both');
+                    } else if (hasSig) {
+                        cell.classList.add('collected-signature');
+                    } else if (hasNormal) {
+                        cell.classList.add('collected-normal');
+                    }
+
+                    cell.innerHTML = `
+                        <span class="cell-emoji">${def.emoji}</span>
+                        <span class="cell-indicator">${hasSig ? '✍' : hasNormal ? '✓' : ''}</span>
+                    `;
+                    cell.title = `#${def.id} ${def.name} | 普通:${hasNormal ? '有' : '无'} 签名:${hasSig ? '有' : '无'}`;
+                    cell.style.background = (hasNormal || hasSig) ?
+                        `linear-gradient(135deg, ${def.color.bgLight}44, ${def.color.bg}44)` : '';
+                    grid.appendChild(cell);
+                }
+                document.getElementById('collectionProgress').textContent =
+                    `${collection.normal.size + collection.signature.size}`;
+            }
+
+            function updateInfoBar() {
+                const openedCount = currentBox.openedPacks.size;
+                document.getElementById('openedCount').textContent = openedCount;
+
+                let sigFound = 0;
+                currentBox.openedPacks.forEach(p => {
+                    currentBox.packs[p].forEach(c => {
+                        if (c.isSignature) sigFound++;
+                    });
+                });
+                document.getElementById('sigFound').textContent = sigFound;
+                const sigBadge = document.getElementById('sigBadge');
+                if (sigFound >= GUARANTEED_SIGNATURES) {
+                    sigBadge.style.opacity = '1';
+                    sigBadge.style.borderColor = 'rgba(240,192,96,0.7)';
+                } else if (sigFound > 0) {
+                    sigBadge.style.opacity = '0.8';
+                } else {
+                    sigBadge.style.opacity = '0.5';
+                }
+
+                const btnOpenAll = document.getElementById('btnOpenAll');
+                if (openedCount >= TOTAL_PACKS) {
+                    btnOpenAll.textContent = '✅ 已全部开启';
+                    btnOpenAll.disabled = true;
+                    btnOpenAll.style.opacity = '0.5';
+                    btnOpenAll.style.cursor = 'default';
+                } else {
+                    btnOpenAll.textContent = '⚡ 全部开启';
+                    btnOpenAll.disabled = false;
+                    btnOpenAll.style.opacity = '1';
+                    btnOpenAll.style.cursor = 'pointer';
+                }
+            }
+
+            // ==================== 开包逻辑 ====================
+            function openPack(packIndex, wrapperElement) {
+                if (currentBox.openedPacks.has(packIndex)) return;
+
+                if (wrapperElement) {
+                    wrapperElement.classList.add('tearing');
+                    setTimeout(() => wrapperElement.classList.remove('tearing'), 500);
+                }
+
+                setTimeout(() => {
+                    currentBox.openedPacks.add(packIndex);
+                    saveCurrentBox();
+
+                    const packCards = currentBox.packs[packIndex];
+                    packCards.forEach(card => {
+                        if (card.isSignature) {
+                            if (!collection.signature.has(card.id)) {
+                                collection.signature.add(card.id);
+                            }
+                        } else {
+                            if (!collection.normal.has(card.id)) {
+                                collection.normal.add(card.id);
+                            }
+                        }
+                    });
+                    saveCollection();
+
+                    renderAll();
+
+                    packCards.forEach((card, delayIdx) => {
+                        if (card.isSignature) {
+                            setTimeout(() => {
+                                spawnSignatureParticles(wrapperElement || document.getElementById('packsGrid'));
+                                showToast('✨ 恭喜获得签名卡！');
+                            }, delayIdx * 300 + 200);
+                        }
+                    });
+
+                    if (currentBox.openedPacks.size >= TOTAL_PACKS) {
+                        setTimeout(() => {
+                            showToast('🎉 本盒已全部开启！点击"新盒"再来一盒吧~');
+                        }, 800);
+                    }
+                }, 350);
+            }
+
+            function openAllPacks() {
+                const unopened = [];
+                for (let p = 0; p < TOTAL_PACKS; p++) {
+                    if (!currentBox.openedPacks.has(p)) unopened.push(p);
+                }
+                if (unopened.length === 0) return;
+
+                unopened.forEach((p, i) => {
+                    setTimeout(() => {
+                        const wrapper = document.querySelector(`.pack-wrapper[data-pack-index="${p}"]`);
+                        openPack(p, wrapper);
+                    }, i * 400);
+                });
+            }
+
+            // ==================== 弹窗 ====================
+            function showCardModal(card) {
+                const def = allCardDefs.find(d => d.id === card.id);
+                const overlay = document.getElementById('modalOverlay');
+                const display = document.getElementById('bigCardDisplay');
+                const imgEl = document.getElementById('bigCardImg');
+                const emojiEl = document.getElementById('bigCardEmoji');
+                const nameEl = document.getElementById('bigCardName');
+                const sigLabel = document.getElementById('bigCardSigLabel');
+                const idEl = document.getElementById('bigCardId');
+
+                display.className = 'big-card-display' + (card.isSignature ? ' signature-display' : '');
+                display.style.background = `linear-gradient(155deg, ${def.color.bgLight}, ${def.color.bg}, ${def.color.bgDark})`;
+
+                const imgUrl = getCardImage(card.id, card.isSignature);
+                imgEl.src = imgUrl;
+                imgEl.style.display = 'block';
+                imgEl.onerror = function() {
+                    this.style.display = 'none';
+                };
+                emojiEl.textContent = def.emoji;
+
+                nameEl.textContent = `#${def.id} ${def.name}`;
+                idEl.textContent = card.isSignature ? '稀有签名版' : '普通版';
+                sigLabel.style.display = card.isSignature ? 'inline-block' : 'none';
+
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal(event) {
+                if (event.target === document.getElementById('modalOverlay')) {
+                    closeModalDirect();
+                }
+            }
+
+            function closeModalDirect() {
+                document.getElementById('modalOverlay').style.display = 'none';
+                document.body.style.overflow = '';
+            }
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModalDirect();
+            });
+
+            // ==================== 粒子特效 ====================
+            function spawnSignatureParticles(sourceElement) {
+                const container = document.getElementById('particles-container');
+                const rect = sourceElement ? sourceElement.getBoundingClientRect() :
+                    { left: window.innerWidth / 2, top: window.innerHeight / 2 };
+                const cx = rect.left + rect.width / 2;
+                const cy = rect.top + rect.height / 2;
+
+                const particleEmojis = ['✨', '💫', '⭐', '🌟', '💛', '🔸', '✨', '💫'];
+                const count = 18;
+
+                for (let i = 0; i < count; i++) {
+                    const particle = document.createElement('span');
+                    particle.className = 'particle';
+                    particle.textContent = particleEmojis[Math.floor(Math.random() * particleEmojis.length)];
+                    particle.style.left = cx + 'px';
+                    particle.style.top = cy + 'px';
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = 60 + Math.random() * 140;
+                    particle.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+                    particle.style.setProperty('--dy', Math.sin(angle) * distance - 30 - Math.random() * 60 + 'px');
+                    particle.style.animationDuration = (0.8 + Math.random() * 1.4) + 's';
+                    particle.style.fontSize = (14 + Math.random() * 22) + 'px';
+                    container.appendChild(particle);
+
+                    setTimeout(() => {
+                        if (particle.parentNode) particle.parentNode.removeChild(particle);
+                    }, 1800);
+                }
+            }
+
+            // ==================== Toast ====================
+            let toastTimer = null;
+
+            function showToast(message) {
+                const oldToast = document.querySelector('.toast');
+                if (oldToast) oldToast.remove();
+                if (toastTimer) clearTimeout(toastTimer);
+
+                const toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                toastTimer = setTimeout(() => {
+                    if (toast.parentNode) toast.remove();
+                }, 2100);
+            }
+
+            // ==================== 重置（新盒） ====================
+            function resetBox() {
+                if (currentBox && currentBox.openedPacks.size > 0 && currentBox.openedPacks.size < TOTAL_PACKS) {
+                    if (!confirm('当前盒还有未开启的卡包，确定要开启全新一盒吗？')) return;
+                }
+                clearCurrentBoxStorage();
+                totalBoxesOpened++;
+                saveTotalBoxes();
+                generateNewBox();
+                renderAll();
+                showToast('🆕 全新一盒已就绪！');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+
+            // ==================== 初始化 ====================
+            function init() {
+                loadCollection();
+                loadTotalBoxes();
+                const loaded = loadCurrentBox();
+                if (!loaded || !currentBox || currentBox.cards.length !== TOTAL_CARDS) {
+                    generateNewBox();
+                }
+                if (currentBox.packs.length !== TOTAL_PACKS) {
+                    generateNewBox();
+                }
+                renderAll();
+
+                if (currentBox.openedPacks.size >= TOTAL_PACKS) {
+                    setTimeout(() => {
+                        showToast('💡 本盒已开完，点击"新盒"开启全新收藏之旅~');
+                    }, 600);
+                }
+            }
+
+            window.openAllPacks = openAllPacks;
+            window.resetBox = resetBox;
+            window.closeModal = closeModal;
+            window.closeModalDirect = closeModalDirect;
+
+            init();
+            console.log('✨ 偶像梦幻祭拍立得（双图片版）已启动');
+            console.log('   普通图片示例:', getNormalImageUrl(1));
+            console.log('   签名图片示例:', getSignatureImageUrl(1));
+        })();
+    </script>
+</body>
+</html>
