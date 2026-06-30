@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✨ 偶像梦幻祭 - 抽卡模拟器（图鉴增强版）</title>
+    <title>✨ 偶像梦幻祭 - 抽卡模拟器（全收集版）</title>
     <style>
         :root {
             --bg: #1a1a2e;
@@ -202,12 +202,10 @@
         }
         .sig-label { display:inline-block; background:linear-gradient(135deg,#f0c060,#c08030); color:#1a1a2e; padding:4px 14px; border-radius:14px; font-weight:800; letter-spacing:0.06em; font-size:0.85em; margin-top:4px; }
 
-        /* 版本切换按钮 */
         .version-btn { padding:6px 14px; border-radius:16px; border:1px solid rgba(255,255,255,0.3); background:transparent; color:var(--text); cursor:pointer; margin:0 4px; transition:all 0.2s; font-size:0.8em; }
         .version-btn.active { border-color:var(--gold); color:var(--gold); box-shadow:0 0 8px rgba(240,192,96,0.4); }
         .version-btn:hover { border-color:var(--gold); }
 
-        /* 左右箭头样式 */
         .arrow-btn {
             position: absolute; top: 50%; transform: translateY(-50%);
             background: rgba(0,0,0,0.5); color: #fff; border: none; font-size: 2em;
@@ -227,6 +225,59 @@
         @keyframes toastIn { from{ transform:translateX(-50%) translateY(-60px); opacity:0; } to{ transform:translateX(-50%) translateY(0); opacity:1; } }
         @keyframes toastOut { from{ opacity:1; } to{ opacity:0; transform:translateX(-50%) translateY(-30px); } }
 
+        .toast.special {
+            background: #2a1f1a; border: 2px solid #ffd700;
+            color: #ffd700; font-size: 1.1em; font-weight: 700;
+            box-shadow: 0 0 25px rgba(255,215,0,0.5);
+            animation: toastIn 0.4s ease-out, toastOut 0.4s 2.5s ease-in forwards;
+        }
+
+        /* 全收集弹窗特殊样式 */
+        #fullCollectionModal .modal-card {
+            background: linear-gradient(135deg, #1a1a2e 0%, #2d2a1a 100%);
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 40px rgba(255,215,0,0.7);
+        }
+
+        /* 统计面板样式 */
+        .stats-panel {
+            margin-top: 20px;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 20px 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            max-width: 900px;
+            margin-left: auto; margin-right: auto;
+            display: none; /* 默认隐藏 */
+        }
+        .stats-panel.visible { display: block; }
+        .stats-toggle-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+        }
+        .stats-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.85em;
+        }
+        .stats-table th, .stats-table td {
+            padding: 6px 4px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .stats-table th {
+            color: var(--gold-light);
+            font-weight: 600;
+        }
+        .stats-table td {
+            color: var(--text-light);
+        }
+        .stats-table .normal-percent { color: #a0c0f0; }
+        .stats-table .signature-percent { color: #f0c060; }
+
         ::-webkit-scrollbar { width:5px; }
         ::-webkit-scrollbar-track { background:transparent; }
         ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:10px; }
@@ -237,6 +288,7 @@
             .btn { padding:8px 16px; font-size:0.78em; }
             .big-card-display { width:120px; height:168px; }
             .big-card-emoji { font-size:3.5em; }
+            .stats-table { font-size: 0.7em; }
         }
     </style>
 </head>
@@ -269,6 +321,33 @@
         <h3>📚 收集图鉴（49种卡片 · 点击卡片查看详情）</h3>
         <div class="collection-grid" id="collectionGrid"></div>
     </div>
+
+    <!-- 统计面板 -->
+    <div class="stats-panel" id="statsPanel">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="color: var(--text-light); font-size: 1em;">📊 抽取统计</h3>
+            <button class="btn btn-sm btn-outline" onclick="toggleStats()">关闭统计</button>
+        </div>
+        <div style="max-height: 400px; overflow-y: auto;">
+            <table class="stats-table" id="statsTable">
+                <thead>
+                    <tr>
+                        <th>角色</th>
+                        <th>普通卡数量</th>
+                        <th>普通卡占比</th>
+                        <th>签名卡数量</th>
+                        <th>签名卡占比</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 统计面板开关按钮（放在图鉴下方） -->
+    <div class="stats-toggle-btn">
+        <button class="btn btn-outline btn-sm" onclick="toggleStats()" id="toggleStatsBtn">📊 显示统计面板</button>
+    </div>
 </div>
 
 <!-- 开卡弹窗 -->
@@ -289,11 +368,8 @@
 <div class="modal-overlay" id="collectionModalOverlay" style="display:none;" onclick="closeCollectionModal(event)">
     <div class="modal-card" id="collectionModalCard" onclick="event.stopPropagation()" style="position: relative;">
         <button class="modal-close" onclick="closeCollectionModalDirect()">✕</button>
-        <!-- 左箭头 -->
         <button class="arrow-btn left" id="arrowLeft" onclick="navigateCard(-1)">◀</button>
-        <!-- 右箭头 -->
         <button class="arrow-btn right" id="arrowRight" onclick="navigateCard(1)">▶</button>
-
         <h3 style="margin-bottom:8px;" id="collectionModalTitle"></h3>
         <div class="big-card-display" id="collectionBigCardDisplay">
             <img class="big-card-img" id="collectionBigCardImg" src="" alt="" style="display:none;">
@@ -304,6 +380,19 @@
             <button class="version-btn" id="btnSignatureVersion" onclick="switchCollectionVersion('signature')">签名版</button>
         </div>
         <div style="font-size:0.9em; margin-top:4px;" id="collectionVersionCount"></div>
+    </div>
+</div>
+
+<!-- 全收集庆祝弹窗 -->
+<div class="modal-overlay" id="fullCollectionModal" style="display:none; z-index:3000;" onclick="closeFullCollectionModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeFullCollectionModal()" style="color:#ffd700;">✕</button>
+        <div style="font-size: 5em; margin-bottom: 10px;">🏆</div>
+        <h2 style="color: #ffd700; font-size: 2em; margin-bottom: 10px;">🎉 恭喜达成全收集！</h2>
+        <p style="font-size: 1.2em; color: var(--text-light); margin-bottom: 20px;">
+            您已集齐全部49张普通卡和签名卡！
+        </p>
+        <button class="btn btn-primary" onclick="closeFullCollectionModal()">🎊 太棒了！</button>
     </div>
 </div>
 
@@ -367,6 +456,7 @@
     let currentBox = null;
     let collection = { normal: {}, signature: {} };
     let totalBoxesOpened = 0;
+    let fullCollectionCelebrated = false;
 
     function loadCollection() {
         try {
@@ -387,7 +477,12 @@
     function hasNormal(cardId) { return getNormalCount(cardId) > 0; }
     function hasSignature(cardId) { return getSignatureCount(cardId) > 0; }
     function addNormal(cardId) { collection.normal[cardId] = (collection.normal[cardId] || 0) + 1; }
-    function addSignature(cardId) { collection.signature[cardId] = (collection.signature[cardId] || 0) + 1; }
+
+    function addSignature(cardId) {
+        const isNew = !collection.signature[cardId];
+        collection.signature[cardId] = (collection.signature[cardId] || 0) + 1;
+        return isNew;
+    }
 
     function loadTotalBoxes() {
         try {
@@ -424,6 +519,30 @@
     }
     function clearCurrentBoxStorage() { try { localStorage.removeItem('starcard_currentBox'); } catch(e) {} }
 
+    // ==================== 全收集检查 ====================
+    function isFullCollection() {
+        for (let i = 0; i < TOTAL_UNIQUE; i++) {
+            const id = i + 1;
+            if (!hasNormal(id) || !hasSignature(id)) return false;
+        }
+        return true;
+    }
+
+    function checkAndShowFullCollection() {
+        if (fullCollectionCelebrated) return;
+        if (isFullCollection()) {
+            fullCollectionCelebrated = true;
+            document.getElementById('fullCollectionModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            spawnCelebrationParticles();
+        }
+    }
+
+    function closeFullCollectionModal() {
+        document.getElementById('fullCollectionModal').style.display = 'none';
+        document.body.style.overflow = '';
+    }
+
     // ==================== 生成新盒 ====================
     function generateNewBox() {
         const shuffledAll = [...allCardDefs].sort(() => Math.random()-0.5);
@@ -451,6 +570,7 @@
         renderPacks();
         renderCollectionGrid();
         updateInfoBar();
+        updateStatsPanel();
         document.getElementById('totalBoxes').textContent = totalBoxesOpened;
     }
 
@@ -541,6 +661,50 @@
         }
     }
 
+    // ==================== 统计面板 ====================
+    function updateStatsPanel() {
+        const tbody = document.querySelector('#statsTable tbody');
+        tbody.innerHTML = '';
+
+        // 计算总普通卡数量和总签名卡数量
+        let totalNormal = 0, totalSignature = 0;
+        for (let i = 1; i <= TOTAL_UNIQUE; i++) {
+            totalNormal += getNormalCount(i);
+            totalSignature += getSignatureCount(i);
+        }
+
+        for (let i = 0; i < TOTAL_UNIQUE; i++) {
+            const def = allCardDefs[i];
+            const normalCount = getNormalCount(def.id);
+            const signatureCount = getSignatureCount(def.id);
+            const normalPercent = totalNormal > 0 ? ((normalCount / totalNormal) * 100).toFixed(2) : '0.00';
+            const signaturePercent = totalSignature > 0 ? ((signatureCount / totalSignature) * 100).toFixed(2) : '0.00';
+
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${def.emoji} ${def.name}</td>
+                <td>${normalCount}</td>
+                <td class="normal-percent">${normalPercent}%</td>
+                <td>${signatureCount}</td>
+                <td class="signature-percent">${signaturePercent}%</td>
+            `;
+            tbody.appendChild(row);
+        }
+    }
+
+    function toggleStats() {
+        const panel = document.getElementById('statsPanel');
+        const btn = document.getElementById('toggleStatsBtn');
+        if (panel.classList.contains('visible')) {
+            panel.classList.remove('visible');
+            btn.textContent = '📊 显示统计面板';
+        } else {
+            panel.classList.add('visible');
+            btn.textContent = '📊 隐藏统计面板';
+        }
+    }
+    window.toggleStats = toggleStats;
+
     // ==================== 开包逻辑 ====================
     function openPack(packIndex, wrapperElement) {
         if (currentBox.openedPacks.has(packIndex)) return;
@@ -550,11 +714,29 @@
             saveCurrentBox();
             const packCards = currentBox.packs[packIndex];
             packCards.forEach(card => {
-                if (card.isSignature) addSignature(card.id);
-                else addNormal(card.id);
+                if (card.isSignature) {
+                    const isNew = addSignature(card.id);
+                    if (isNew && totalBoxesOpened >= 50) {
+                        const def = allCardDefs.find(d => d.id === card.id);
+                        const cardName = def ? def.name : '未知';
+                        setTimeout(() => {
+                            showSpecialToast(`🌟 恭喜获得未收录签名卡！\n#${card.id} ${cardName}`);
+                        }, 300);
+                    }
+                } else {
+                    addNormal(card.id);
+                }
             });
             saveCollection();
             renderAll();
+            checkAndShowFullCollection();
+
+            // 自动展开统计面板（如果所有包都开完）
+            if (currentBox.openedPacks.size >= TOTAL_PACKS) {
+                document.getElementById('statsPanel').classList.add('visible');
+                document.getElementById('toggleStatsBtn').textContent = '📊 隐藏统计面板';
+            }
+
             packCards.forEach((card, delayIdx) => {
                 if (card.isSignature) setTimeout(() => {
                     spawnSignatureParticles(wrapperElement || document.getElementById('packsGrid'));
@@ -601,9 +783,12 @@
         document.body.style.overflow = '';
     }
 
-    // ==================== 图鉴详情弹窗（含左右切换） ====================
+    // ==================== 图鉴详情弹窗（含左右切换与滑动） ====================
     let currentCollectionCardId = null;
     let currentCollectionVersion = 'normal';
+    // 滑动相关变量
+    let touchStartX = 0;
+    let touchStartY = 0;
 
     function showCollectionCardModal(cardId) {
         const def = allCardDefs.find(d=>d.id===cardId);
@@ -612,8 +797,33 @@
         currentCollectionVersion = 'normal';
         document.getElementById('collectionModalTitle').textContent = `#${def.id} ${def.name}`;
         updateCollectionModalDisplay();
-        document.getElementById('collectionModalOverlay').style.display = 'flex';
+        const overlay = document.getElementById('collectionModalOverlay');
+        overlay.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        // 绑定滑动事件
+        const cardElement = document.getElementById('collectionModalCard');
+        cardElement.addEventListener('touchstart', handleTouchStart, { passive: true });
+        cardElement.addEventListener('touchend', handleTouchEnd, { passive: true });
+    }
+
+    function handleTouchStart(e) {
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+    }
+
+    function handleTouchEnd(e) {
+        const touchEndX = e.changedTouches[0].screenX;
+        const touchEndY = e.changedTouches[0].screenY;
+        const dx = touchEndX - touchStartX;
+        const dy = touchEndY - touchStartY;
+        // 水平滑动距离大于垂直，且大于阈值50px
+        if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+            if (dx > 0) {
+                navigateCard(-1); // 向右滑动，上一张
+            } else {
+                navigateCard(1);  // 向左滑动，下一张
+            }
+        }
     }
 
     function updateCollectionModalDisplay() {
@@ -638,24 +848,18 @@
 
         const count = currentCollectionVersion === 'normal' ? getNormalCount(currentCollectionCardId) : getSignatureCount(currentCollectionCardId);
         countEl.textContent = `已收集：${count} 张`;
-
-        // 更新标题
         document.getElementById('collectionModalTitle').textContent = `#${def.id} ${def.name}`;
     }
 
-    // 左右切换卡片
     window.navigateCard = function(direction) {
         if (!currentCollectionCardId) return;
-        // 找到当前卡片在 allCardDefs 中的索引
         const currentIndex = allCardDefs.findIndex(d => d.id === currentCollectionCardId);
         if (currentIndex === -1) return;
         let newIndex = currentIndex + direction;
-        // 循环
         if (newIndex < 0) newIndex = TOTAL_UNIQUE - 1;
         if (newIndex >= TOTAL_UNIQUE) newIndex = 0;
         const newCardId = allCardDefs[newIndex].id;
         currentCollectionCardId = newCardId;
-        // 保持版本不变
         updateCollectionModalDisplay();
     };
 
@@ -669,15 +873,20 @@
         if (event.target === document.getElementById('collectionModalOverlay')) closeCollectionModalDirect();
     }
     function closeCollectionModalDirect() {
-        document.getElementById('collectionModalOverlay').style.display = 'none';
+        const overlay = document.getElementById('collectionModalOverlay');
+        overlay.style.display = 'none';
         document.body.style.overflow = '';
+        // 移除滑动事件
+        const cardElement = document.getElementById('collectionModalCard');
+        cardElement.removeEventListener('touchstart', handleTouchStart);
+        cardElement.removeEventListener('touchend', handleTouchEnd);
     }
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             closeModalDirect();
             closeCollectionModalDirect();
+            closeFullCollectionModal();
         }
-        // 可选键盘左右键切换
         if (document.getElementById('collectionModalOverlay').style.display === 'flex') {
             if (e.key === 'ArrowLeft') navigateCard(-1);
             if (e.key === 'ArrowRight') navigateCard(1);
@@ -703,6 +912,29 @@
             setTimeout(()=> p.remove(), 1800);
         }
     }
+
+    function spawnCelebrationParticles() {
+        const container = document.getElementById('particles-container');
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        const emojis = ['🎉','🎊','✨','🌟','🏆','💛','🎀','💫'];
+        for (let i = 0; i < 40; i++) {
+            const p = document.createElement('span');
+            p.className = 'particle';
+            p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            p.style.left = cx + 'px';
+            p.style.top = cy + 'px';
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 100 + Math.random() * 300;
+            p.style.setProperty('--dx', Math.cos(angle) * distance + 'px');
+            p.style.setProperty('--dy', Math.sin(angle) * distance - 50 - Math.random() * 100 + 'px');
+            p.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+            p.style.fontSize = (20 + Math.random() * 30) + 'px';
+            container.appendChild(p);
+            setTimeout(() => p.remove(), 3500);
+        }
+    }
+
     let toastTimer;
     function showToast(msg) {
         const old = document.querySelector('.toast'); if(old) old.remove();
@@ -712,17 +944,32 @@
         toastTimer = setTimeout(()=> t.remove(), 2100);
     }
 
+    function showSpecialToast(msg) {
+        const old = document.querySelector('.toast.special');
+        if (old) old.remove();
+        const t = document.createElement('div');
+        t.className = 'toast special';
+        t.textContent = msg;
+        document.body.appendChild(t);
+        setTimeout(() => { if (t.parentNode) t.remove(); }, 3000);
+    }
+
     // ==================== 重置数据 ====================
     function resetAllData() {
         if (!confirm('⚠️ 确定要清除所有开盒记录和图鉴收集进度吗？此操作无法恢复！')) return;
         totalBoxesOpened = 0;
         collection = { normal: {}, signature: {} };
         currentBox = null;
+        fullCollectionCelebrated = false;
         localStorage.removeItem('starcard_collection_v2');
         localStorage.removeItem('starcard_totalBoxes');
         localStorage.removeItem('starcard_currentBox');
         generateNewBox();
         renderAll();
+        closeFullCollectionModal();
+        // 关闭统计面板
+        document.getElementById('statsPanel').classList.remove('visible');
+        document.getElementById('toggleStatsBtn').textContent = '📊 显示统计面板';
         showToast('🗑️ 所有数据已重置');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -737,6 +984,9 @@
         saveTotalBoxes();
         generateNewBox();
         renderAll();
+        // 隐藏统计面板（新盒未开完）
+        document.getElementById('statsPanel').classList.remove('visible');
+        document.getElementById('toggleStatsBtn').textContent = '📊 显示统计面板';
         showToast('🆕 全新一盒已就绪！');
         window.scrollTo({ top:0, behavior:'smooth' });
     }
@@ -747,6 +997,7 @@
     window.closeModalDirect = closeModalDirect;
     window.closeCollectionModal = closeCollectionModal;
     window.closeCollectionModalDirect = closeCollectionModalDirect;
+    window.closeFullCollectionModal = closeFullCollectionModal;
     window.navigateCard = navigateCard;
 
     // ==================== 初始化 ====================
@@ -756,7 +1007,13 @@
         if (!loadCurrentBox() || !currentBox || currentBox.cards.length!==TOTAL_CARDS) generateNewBox();
         if (currentBox.packs.length !== TOTAL_PACKS) generateNewBox();
         renderAll();
+        if (isFullCollection()) {
+            fullCollectionCelebrated = true;
+        }
         if (currentBox.openedPacks.size >= TOTAL_PACKS) {
+            // 如果已经是全开状态，自动显示统计面板
+            document.getElementById('statsPanel').classList.add('visible');
+            document.getElementById('toggleStatsBtn').textContent = '📊 隐藏统计面板';
             setTimeout(() => showToast('💡 本盒已开完，点击"新盒"开启全新收藏之旅~'), 600);
         }
     }
