@@ -58,17 +58,9 @@
             z-index: 9999;
         }
         @keyframes particleFly {
-            0% {
-                transform: translate(0, 0) scale(1.2);
-                opacity: 1;
-            }
-            30% {
-                opacity: 1;
-            }
-            100% {
-                transform: translate(var(--dx), var(--dy)) scale(0);
-                opacity: 0;
-            }
+            0% { transform: translate(0, 0) scale(1.2); opacity: 1; }
+            30% { opacity: 1; }
+            100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
         }
 
         .header {
@@ -120,26 +112,15 @@
             letter-spacing: 0.03em;
             transition: all 0.3s;
         }
-        .info-badge .icon {
-            font-size: 1.3em;
-        }
-        .info-badge .count {
-            font-weight: 700;
-            color: var(--gold);
-            font-size: 1.1em;
-        }
+        .info-badge .icon { font-size: 1.3em; }
+        .info-badge .count { font-weight: 700; color: var(--gold); font-size: 1.1em; }
         .info-badge.signature-found {
             border-color: rgba(240, 192, 96, 0.5);
             animation: glowPulse 2s ease-in-out infinite;
         }
         @keyframes glowPulse {
-            0%,
-            100% {
-                box-shadow: 0 0 8px rgba(240, 192, 96, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 20px rgba(240, 192, 96, 0.45);
-            }
+            0%, 100% { box-shadow: 0 0 8px rgba(240, 192, 96, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(240, 192, 96, 0.45); }
         }
 
         .btn {
@@ -167,9 +148,7 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 24px rgba(233, 68, 96, 0.5);
         }
-        .btn-primary:active {
-            transform: scale(0.96);
-        }
+        .btn-primary:active { transform: scale(0.96); }
         .btn-outline {
             background: transparent;
             border: 2px solid rgba(255, 255, 255, 0.25);
@@ -180,15 +159,9 @@
             color: var(--gold);
             box-shadow: 0 0 12px rgba(240, 192, 96, 0.2);
         }
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 0.78em;
-            border-radius: 20px;
-        }
+        .btn-sm { padding: 6px 14px; font-size: 0.78em; border-radius: 20px; }
 
-        .packs-section {
-            margin-top: 16px;
-        }
+        .packs-section { margin-top: 16px; }
         .packs-section .section-label {
             font-size: 1em;
             letter-spacing: 0.05em;
@@ -206,34 +179,15 @@
             margin: 0 auto;
         }
         @media (max-width: 850px) {
-            .packs-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 12px;
-            }
+            .packs-grid { grid-template-columns: repeat(4, 1fr); gap: 12px; }
         }
         @media (max-width: 600px) {
-            .packs-grid {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-            }
-            :root {
-                --pack-width: 120px;
-                --pack-height: 165px;
-                --card-mini-w: 60px;
-                --card-mini-h: 84px;
-            }
+            .packs-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+            :root { --pack-width: 120px; --pack-height: 165px; --card-mini-w: 60px; --card-mini-h: 84px; }
         }
         @media (max-width: 400px) {
-            .packs-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 10px;
-            }
-            :root {
-                --pack-width: 130px;
-                --pack-height: 175px;
-                --card-mini-w: 64px;
-                --card-mini-h: 90px;
-            }
+            .packs-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            :root { --pack-width: 130px; --pack-height: 175px; --card-mini-w: 64px; --card-mini-h: 90px; }
         }
 
         .pack-wrapper {
@@ -243,49 +197,27 @@
             cursor: pointer;
             position: relative;
         }
-        .pack-wrapper.opened {
-            cursor: default;
-            perspective: none;
-        }
+        .pack-wrapper.opened { cursor: default; perspective: none; }
         .pack-inner {
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             position: relative;
             transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             transform-style: preserve-3d;
         }
-        .pack-wrapper.tearing .pack-inner {
-            animation: packShake 0.5s ease-in-out;
-        }
+        .pack-wrapper.tearing .pack-inner { animation: packShake 0.5s ease-in-out; }
         @keyframes packShake {
-            0%,
-            100% {
-                transform: rotate(0);
-            }
-            15% {
-                transform: rotate(-6deg) scale(1.03);
-            }
-            30% {
-                transform: rotate(5deg) scale(1.04);
-            }
-            45% {
-                transform: rotate(-4deg) scale(1.02);
-            }
-            60% {
-                transform: rotate(3deg) scale(1.03);
-            }
-            75% {
-                transform: rotate(-1.5deg) scale(1.01);
-            }
-            90% {
-                transform: rotate(0.5deg);
-            }
+            0%,100% { transform: rotate(0); }
+            15% { transform: rotate(-6deg) scale(1.03); }
+            30% { transform: rotate(5deg) scale(1.04); }
+            45% { transform: rotate(-4deg) scale(1.02); }
+            60% { transform: rotate(3deg) scale(1.03); }
+            75% { transform: rotate(-1.5deg) scale(1.01); }
+            90% { transform: rotate(0.5deg); }
         }
 
         .pack-sealed {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             backface-visibility: hidden;
             border-radius: 14px;
             background: linear-gradient(160deg, #3a3a5c 0%, #252540 30%, #1e1e38 60%, #2a2a48 100%);
@@ -302,10 +234,8 @@
         .pack-sealed::before {
             content: '';
             position: absolute;
-            top: -30%;
-            left: -20%;
-            width: 140%;
-            height: 80%;
+            top: -30%; left: -20%;
+            width: 140%; height: 80%;
             background: linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, transparent 100%);
             transform: rotate(-5deg);
             pointer-events: none;
@@ -313,10 +243,8 @@
         .pack-sealed::after {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 10%;
-            width: 80%;
-            height: 2px;
+            bottom: 0; left: 10%;
+            width: 80%; height: 2px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
             box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
@@ -325,21 +253,18 @@
             font-size: 0.75em;
             color: rgba(255, 255, 255, 0.5);
             letter-spacing: 0.05em;
-            position: relative;
-            z-index: 1;
+            position: relative; z-index: 1;
         }
         .pack-sealed .pack-icon {
             font-size: 2.4em;
-            position: relative;
-            z-index: 1;
+            position: relative; z-index: 1;
             filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
         }
         .pack-sealed .pack-label {
             font-size: 0.7em;
             color: rgba(255, 255, 255, 0.35);
             letter-spacing: 0.06em;
-            position: relative;
-            z-index: 1;
+            position: relative; z-index: 1;
         }
         .pack-wrapper:not(.opened):hover .pack-sealed {
             border-color: rgba(255, 255, 255, 0.35);
@@ -354,8 +279,7 @@
 
         .pack-opened {
             position: absolute;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
             backface-visibility: hidden;
             border-radius: 14px;
             background: var(--surface);
@@ -369,9 +293,7 @@
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
             transform: rotateY(180deg);
         }
-        .pack-wrapper.opened .pack-inner {
-            transform: rotateY(180deg);
-        }
+        .pack-wrapper.opened .pack-inner { transform: rotateY(180deg); }
         .pack-opened .mini-cards-row {
             display: flex;
             gap: 4px;
@@ -397,19 +319,15 @@
         }
         .mini-card-img {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             object-fit: cover;
             z-index: 1;
         }
         .mini-card .mini-card-bg {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -418,8 +336,7 @@
         }
         .mini-card .mini-card-num {
             position: absolute;
-            bottom: 3px;
-            right: 5px;
+            bottom: 3px; right: 5px;
             font-size: 0.55em;
             color: rgba(255, 255, 255, 0.9);
             font-weight: 700;
@@ -432,18 +349,12 @@
             animation: miniGlow 1.8s ease-in-out infinite;
         }
         @keyframes miniGlow {
-            0%,
-            100% {
-                box-shadow: 0 0 8px rgba(240, 192, 96, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
-            }
-            50% {
-                box-shadow: 0 0 18px rgba(240, 192, 96, 0.8), 0 2px 8px rgba(0, 0, 0, 0.3);
-            }
+            0%,100% { box-shadow: 0 0 8px rgba(240, 192, 96, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3); }
+            50% { box-shadow: 0 0 18px rgba(240, 192, 96, 0.8), 0 2px 8px rgba(0, 0, 0, 0.3); }
         }
         .mini-card .sig-badge {
             position: absolute;
-            top: 3px;
-            left: 4px;
+            top: 3px; left: 4px;
             font-size: 0.5em;
             color: var(--gold-dark);
             font-weight: 700;
@@ -461,8 +372,7 @@
             padding: 20px 16px;
             border: 1px solid rgba(255, 255, 255, 0.08);
             max-width: 900px;
-            margin-left: auto;
-            margin-right: auto;
+            margin-left: auto; margin-right: auto;
         }
         .collection-panel h3 {
             text-align: center;
@@ -512,66 +422,44 @@
             box-shadow: 0 0 10px rgba(240, 192, 96, 0.45);
             font-weight: 700;
         }
-        .collection-cell .cell-emoji {
-            font-size: 1.1em;
-        }
-        .collection-cell .cell-indicator {
-            position: absolute;
-            bottom: 2px;
-            right: 3px;
-            font-size: 0.5em;
+
+        /* 修复后的图鉴图片样式 */
         .collection-cell-img {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             object-fit: cover;
             z-index: 0;
             border-radius: 4px;
         }
-         .collection-cell .cell-emoji {
+        .collection-cell .cell-emoji {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             font-size: 1.1em;
             z-index: 1;
-    /* 当图片加载失败时作为后备显示 */
+            /* 图片加载失败时作为后备显示 */
         }
-         .collection-cell .cell-indicator {
+        .collection-cell .cell-indicator {
             position: absolute;
-            bottom: 2px;
-            right: 3px;
+            bottom: 2px; right: 3px;
             font-size: 0.5em;
             z-index: 2;
             background: rgba(0,0,0,0.5);
             border-radius: 2px;
             padding: 0 2px;
-}
         }
 
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.75);
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.75);
             z-index: 1000;
             display: flex;
             align-items: center;
             justify-content: center;
             animation: fadeIn 0.25s ease-out;
         }
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-            to {
-                opacity: 1;
-            }
-        }
+        @keyframes fadeIn { from { opacity:0; } to { opacity:1; } }
         .modal-card {
             background: var(--surface2);
             border-radius: 20px;
@@ -580,63 +468,47 @@
             position: relative;
             max-width: 380px;
             width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
-            animation: modalPopIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+            animation: modalPopIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
         }
         @keyframes modalPopIn {
-            from {
-                transform: scale(0.7);
-                opacity: 0;
-            }
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+            from { transform: scale(0.7); opacity:0; }
+            to { transform: scale(1); opacity:1; }
         }
         .modal-card .big-card-display {
-            width: 160px;
-            height: 224px;
+            width: 160px; height: 224px;
             margin: 0 auto 16px;
             border-radius: 12px;
             position: relative;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
             background-color: #222;
             overflow: hidden;
         }
         .big-card-img {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top:0; left:0;
+            width:100%; height:100%;
             object-fit: cover;
-            z-index: 1;
+            z-index:1;
         }
         .big-card-emoji {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top:0; left:0;
+            width:100%; height:100%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 5em;
-            z-index: 0;
+            z-index:0;
         }
         .modal-card .big-card-display.signature-display {
             border: 4px solid var(--gold);
-            box-shadow: 0 0 30px rgba(240, 192, 96, 0.7), 0 8px 30px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 0 30px rgba(240,192,96,0.7), 0 8px 30px rgba(0,0,0,0.5);
             animation: sigBigGlow 1.5s ease-in-out infinite;
         }
         @keyframes sigBigGlow {
-            0%,
-            100% {
-                box-shadow: 0 0 20px rgba(240, 192, 96, 0.5), 0 8px 30px rgba(0, 0, 0, 0.5);
-            }
-            50% {
-                box-shadow: 0 0 45px rgba(240, 192, 96, 0.9), 0 8px 30px rgba(0, 0, 0, 0.5);
-            }
+            0%,100% { box-shadow: 0 0 20px rgba(240,192,96,0.5), 0 8px 30px rgba(0,0,0,0.5); }
+            50% { box-shadow: 0 0 45px rgba(240,192,96,0.9), 0 8px 30px rgba(0,0,0,0.5); }
         }
         .modal-card .sig-label {
             display: inline-block;
@@ -651,23 +523,19 @@
         }
         .modal-close {
             position: absolute;
-            top: 12px;
-            right: 16px;
+            top:12px; right:16px;
             font-size: 1.5em;
             cursor: pointer;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255,255,255,0.5);
             transition: color 0.3s;
             background: none;
             border: none;
         }
-        .modal-close:hover {
-            color: #fff;
-        }
+        .modal-close:hover { color: #fff; }
 
         .toast {
             position: fixed;
-            top: 20px;
-            left: 50%;
+            top: 20px; left: 50%;
             transform: translateX(-50%);
             background: var(--surface2);
             color: var(--gold-light);
@@ -677,61 +545,29 @@
             letter-spacing: 0.04em;
             z-index: 2000;
             border: 1px solid var(--gold);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
             animation: toastIn 0.4s ease-out, toastOut 0.4s 1.6s ease-in forwards;
             pointer-events: none;
         }
         @keyframes toastIn {
-            from {
-                transform: translateX(-50%) translateY(-60px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(-50%) translateY(0);
-                opacity: 1;
-            }
+            from { transform: translateX(-50%) translateY(-60px); opacity:0; }
+            to { transform: translateX(-50%) translateY(0); opacity:1; }
         }
         @keyframes toastOut {
-            from {
-                opacity: 1;
-            }
-            to {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-30px);
-            }
+            from { opacity:1; }
+            to { opacity:0; transform: translateX(-50%) translateY(-30px); }
         }
 
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 10px;
-        }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:10px; }
 
         @media (max-width: 500px) {
-            .header .logo {
-                font-size: 1.8em;
-            }
-            .info-badge {
-                padding: 7px 14px;
-                font-size: 0.78em;
-                gap: 4px;
-            }
-            .btn {
-                padding: 8px 16px;
-                font-size: 0.78em;
-            }
-            .modal-card .big-card-display {
-                width: 120px;
-                height: 168px;
-            }
-            .big-card-emoji {
-                font-size: 3.5em;
-            }
+            .header .logo { font-size: 1.8em; }
+            .info-badge { padding:7px 14px; font-size:0.78em; gap:4px; }
+            .btn { padding:8px 16px; font-size:0.78em; }
+            .modal-card .big-card-display { width:120px; height:168px; }
+            .big-card-emoji { font-size: 3.5em; }
         }
     </style>
 </head>
@@ -802,12 +638,8 @@
             }
 
             // 签名版图片命名规则：默认偏移 +49，即 card_50.png ~ card_98.png
-            // 如果您使用其他命名规则，例如 card_1_signature.png，只需修改这个函数即可
             function getSignatureImageUrl(cardId) {
                 return `${IMAGE_BASE_PATH}card_${cardId + 49}${IMAGE_EXTENSION}`;
-                // 其他常见命名示例（取消注释即可用）：
-                // return `${IMAGE_BASE_PATH}card_${cardId}_sig${IMAGE_EXTENSION}`;
-                // return `${IMAGE_BASE_PATH}signature/card_${cardId}${IMAGE_EXTENSION}`;
             }
 
             // ==================== 卡片数据 ====================
@@ -994,7 +826,7 @@
             // ==================== 渲染 ====================
             function renderAll() {
                 renderPacks();
-                renderCollectionGrid();
+                renderCollectionGrid();  // 不需要参数，使用全局 collection 和 IMAGE_BASE_PATH
                 updateInfoBar();
                 document.getElementById('totalBoxes').textContent = totalBoxesOpened;
             }
@@ -1061,15 +893,14 @@
                 }
             }
 
-            function renderCollectionGrid(box, state) {
+            function renderCollectionGrid() {
                 const grid = document.getElementById('collectionGrid');
                 grid.innerHTML = '';
-                const collection = state.collection;
-                // 卡背图路径（直接用卡盒的 basePath 拼接 card_back.png）
-                const cardBackUrl = box.basePath + 'card_back.png';
+                // 卡背图路径（直接使用 IMAGE_BASE_PATH + card_back.png）
+                const cardBackUrl = IMAGE_BASE_PATH + 'card_back.png';
 
                 for (let i = 0; i < TOTAL_UNIQUE; i++) {
-                    const def = box.cardDefs[i];
+                    const def = allCardDefs[i];
                     const hasNormal = collection.normal.has(def.id);
                     const hasSig = collection.signature.has(def.id);
 
@@ -1084,18 +915,19 @@
 
                     cell.innerHTML = `
                         <img src="${imgSrc}" class="collection-cell-img" 
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
-                            alt="${def.name}">
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
+                             alt="${def.name}">
                         <span class="cell-emoji" style="display:${(hasNormal || hasSig) ? 'none' : 'flex'};">${def.emoji}</span>
                         <span class="cell-indicator">${hasSig ? '✍' : hasNormal ? '✓' : ''}</span>
-        `;
+                    `;
                     cell.title = `#${def.id} ${def.name} | 普通:${hasNormal?'有':'无'} 签名:${hasSig?'有':'无'}`;
-        // 移除原来的背景色设置，因为图片已经覆盖
+                    // 移除原来的背景色设置，因为图片已经覆盖
                     cell.style.background = '';
                     grid.appendChild(cell);
-                  }
-               document.getElementById('collectionProgress').textContent = `${collection.normal.size + collection.signature.size}`;
-}
+                }
+                document.getElementById('collectionProgress').textContent = `${collection.normal.size + collection.signature.size}`;
+            }
+
             function updateInfoBar() {
                 const openedCount = currentBox.openedPacks.size;
                 document.getElementById('openedCount').textContent = openedCount;
@@ -1147,13 +979,9 @@
                     const packCards = currentBox.packs[packIndex];
                     packCards.forEach(card => {
                         if (card.isSignature) {
-                            if (!collection.signature.has(card.id)) {
-                                collection.signature.add(card.id);
-                            }
+                            collection.signature.add(card.id);
                         } else {
-                            if (!collection.normal.has(card.id)) {
-                                collection.normal.add(card.id);
-                            }
+                            collection.normal.add(card.id);
                         }
                     });
                     saveCollection();
