@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>✨ 偶像梦幻祭 - 抽卡模拟器（无保底版）</title>
+    <title>✨ 偶像梦幻祭 - 抽卡模拟器（有保底版）</title>
     <style>
         :root {
             --bg: #1a1a2e;
@@ -333,6 +333,19 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
 
+        /* 保底信息提示 */
+        .pity-info {
+            background: var(--surface);
+            border-radius: 28px;
+            padding: 8px 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 0.85em;
+            color: var(--gold-light);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         ::-webkit-scrollbar { width:5px; }
         ::-webkit-scrollbar-track { background:transparent; }
         ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.15); border-radius:10px; }
@@ -354,7 +367,7 @@
 
 <div class="header">
     <div class="logo">✨ 偶像梦幻祭</div>
-    <div class="subtitle">一盒10包 · 每包3张 · 必出2张签名卡 · 同包无双签</div>
+    <div class="subtitle">一盒10包 · 每包3张 · 必出2张签名卡 · 同包无双签 · 100盒后每3盒保底</div>
 </div>
 
 <div class="main-container">
@@ -363,6 +376,9 @@
         <div class="info-badge"><span class="icon">🎁</span> 当前包：<span class="count" id="openedCount">0</span>/10</div>
         <div class="info-badge signature-found" id="sigBadge" style="opacity:0.5;"><span class="icon">✍️</span> 签名卡：<span class="count" id="sigFound">0</span>/2</div>
         <div class="info-badge"><span class="icon">📚</span> 图鉴收集：<span class="count" id="collectionProgress">0</span>/98</div>
+        <div class="pity-info" id="pityInfo" style="display:none;">
+            <span>🔮 保底进度：</span><span id="pityCounter">0</span><span>/3</span>
+        </div>
         <button class="btn btn-outline btn-sm" onclick="openAllPacks()" id="btnOpenAll">⚡ 全部开启</button>
         <button class="btn btn-primary btn-sm" onclick="resetBox()">🔄 新盒</button>
         <button class="btn btn-outline btn-sm" onclick="resetAllData()" style="border-color: rgba(255,100,100,0.5); color: #f08080;">🗑️ 重置卡盒</button>
@@ -445,7 +461,6 @@
             <button class="version-btn" id="btnSignatureVersion" onclick="switchCollectionVersion('signature')">签名版</button>
         </div>
         <div style="font-size:0.9em; margin-top:4px;" id="collectionVersionCount"></div>
-        <!-- 心愿单按钮，不再使用 onclick，而是由 JS 动态绑定 -->
         <button class="wishlist-btn" id="wishlistBtn">❤️ 加入心愿单</button>
     </div>
 </div>
@@ -512,13 +527,17 @@
     }
 
     const TOTAL_PACKS = 10, CARDS_PER_PACK = 3, TOTAL_CARDS = 30, TOTAL_UNIQUE = 49, GUARANTEED_SIGNATURES = 2;
+    const PITY_START = 100; // 100盒后开始保底
+    const PITY_STEP = 3;    // 每3盒一次保底
 
     let currentBox = null;
     let collection = { normal: {}, signature: {} };
     let totalBoxesOpened = 0;
     let fullCollectionCelebrated = false;
     let wishlist = [];
+    let pityCounter = 0; // 保底计数器
 
+    // 心愿单加载/保存
     function loadWishlist() {
         try {
             const raw = localStorage.getItem('starcard_wishlist');
@@ -553,7 +572,6 @@
         return false;
     }
 
-    // 切换心愿单（改为由事件监听调用）
     function handleWishlistClick() {
         const cardId = currentCollectionCardId;
         if (!cardId) return;
@@ -573,14 +591,11 @@
         updateCollectionModalWishBtn();
     }
 
-    // 更新心愿按钮外观和事件绑定
     function updateCollectionModalWishBtn() {
         const btn = document.getElementById('wishlistBtn');
         if (!btn || !currentCollectionCardId) return;
-        // 移除之前绑定的事件，再重新绑定
         btn.removeEventListener('click', handleWishlistClick);
         btn.addEventListener('click', handleWishlistClick);
-        
         if (isInWishlist(currentCollectionCardId)) {
             btn.textContent = '❤️ 移除心愿单';
             btn.classList.add('active');
@@ -590,6 +605,29 @@
         }
     }
 
+    // 保底计数器持久化
+    function loadPityCounter() {
+        try {
+            const saved = localStorage.getItem('starcard_pityCounter');
+            pityCounter = saved ? parseInt(saved,10) || 0 : 0;
+        } catch(e) { pityCounter = 0; }
+    }
+    function savePityCounter() {
+        try { localStorage.setItem('starcard_pityCounter', pityCounter.toString()); } catch(e) {}
+    }
+
+    function updatePityDisplay() {
+        const infoEl = document.getElementById('pityInfo');
+        const counterEl = document.getElementById('pityCounter');
+        if (totalBoxesOpened >= PITY_START) {
+            infoEl.style.display = 'inline-flex';
+            counterEl.textContent = pityCounter;
+        } else {
+            infoEl.style.display = 'none';
+        }
+    }
+
+    // 收集数据加载/保存
     function loadCollection() {
         try {
             const raw = localStorage.getItem('starcard_collection_v2');
@@ -672,12 +710,38 @@
         document.body.style.overflow = '';
     }
 
-    function generateNewBox() {
+    // 生成新盒（支持保底强制未收录签名卡）
+    function generateNewBox(guaranteeNewSig = false) {
         const shuffledAll = [...allCardDefs].sort(() => Math.random()-0.5);
         const selected30 = shuffledAll.slice(0, TOTAL_CARDS);
         const sigIndices = new Set();
         while (sigIndices.size < GUARANTEED_SIGNATURES) sigIndices.add(Math.floor(Math.random()*TOTAL_CARDS));
-        const cards = selected30.map((def, idx) => ({ id: def.id, isSignature: sigIndices.has(idx) }));
+        let cards = selected30.map((def, idx) => ({ id: def.id, isSignature: sigIndices.has(idx) }));
+
+        // 保底逻辑：强制替换一张签名卡为未收录签名卡
+        if (guaranteeNewSig) {
+            const boxCardIds = new Set(cards.map(c => c.id));
+            const uncollectedSigIds = allCardDefs
+                .filter(d => !collection.signature[d.id] && !boxCardIds.has(d.id))
+                .map(d => d.id);
+            if (uncollectedSigIds.length > 0) {
+                const sigCards = cards.filter(c => c.isSignature);
+                const alreadyHasNew = sigCards.some(c => uncollectedSigIds.includes(c.id));
+                if (!alreadyHasNew) {
+                    const replaceIdx = Math.floor(Math.random() * sigCards.length);
+                    const oldCard = sigCards[replaceIdx];
+                    const newId = uncollectedSigIds[Math.floor(Math.random() * uncollectedSigIds.length)];
+                    // 替换 cards 中的对应卡
+                    for (let i = 0; i < cards.length; i++) {
+                        if (cards[i] === oldCard) {
+                            cards[i] = { id: newId, isSignature: true };
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
         const sigCards = cards.filter(c=>c.isSignature);
         const normalCards = cards.filter(c=>!c.isSignature);
         const packs = Array.from({length:TOTAL_PACKS}, ()=>[]);
@@ -698,6 +762,7 @@
         renderCollectionGrid();
         updateInfoBar();
         updateStatsPanel();
+        updatePityDisplay();
         document.getElementById('totalBoxes').textContent = totalBoxesOpened;
     }
 
@@ -974,7 +1039,7 @@
         const cardElement = document.getElementById('collectionModalCard');
         cardElement.addEventListener('touchstart', handleTouchStart, { passive: true });
         cardElement.addEventListener('touchend', handleTouchEnd, { passive: true });
-        updateCollectionModalWishBtn(); // 打开弹窗时更新按钮状态和事件
+        updateCollectionModalWishBtn();
     }
 
     function handleTouchStart(e) { touchStartX = e.changedTouches[0].screenX; touchStartY = e.changedTouches[0].screenY; }
@@ -1021,7 +1086,7 @@
         const newCardId = allCardDefs[newIndex].id;
         currentCollectionCardId = newCardId;
         updateCollectionModalDisplay();
-        updateCollectionModalWishBtn(); // 切换卡片后更新按钮
+        updateCollectionModalWishBtn();
     };
 
     window.switchCollectionVersion = function(version) {
@@ -1118,7 +1183,9 @@
         currentBox = null;
         fullCollectionCelebrated = false;
         wishlist = [];
+        pityCounter = 0;
         saveWishlist();
+        savePityCounter();
         localStorage.removeItem('starcard_collection_v2');
         localStorage.removeItem('starcard_totalBoxes');
         localStorage.removeItem('starcard_currentBox');
@@ -1138,10 +1205,27 @@
         clearCurrentBoxStorage();
         totalBoxesOpened++;
         saveTotalBoxes();
-        generateNewBox();
+
+        // 保底逻辑
+        let guaranteeNewSig = false;
+        if (totalBoxesOpened >= PITY_START) {
+            pityCounter++;
+            if (pityCounter >= PITY_STEP) {
+                guaranteeNewSig = true;
+                pityCounter = 0;
+            }
+            savePityCounter();
+        }
+
+        generateNewBox(guaranteeNewSig);
         renderAll();
         document.getElementById('statsPanel').classList.remove('visible');
         document.getElementById('toggleStatsBtn').textContent = '📊 显示统计面板';
+
+        if (guaranteeNewSig) {
+            showToast('🔮 保底触发！本盒必出一张新的签名卡');
+        }
+
         showToast('🆕 全新一盒已就绪！');
         window.scrollTo({ top:0, behavior:'smooth' });
     }
@@ -1159,6 +1243,7 @@
         loadCollection();
         loadTotalBoxes();
         loadWishlist();
+        loadPityCounter();
         if (!loadCurrentBox() || !currentBox || currentBox.cards.length!==TOTAL_CARDS) generateNewBox();
         if (currentBox.packs.length !== TOTAL_PACKS) generateNewBox();
         renderAll();
