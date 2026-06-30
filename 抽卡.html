@@ -241,6 +241,8 @@
         <div class="info-badge"><span class="icon">📚</span> 图鉴收集：<span class="count" id="collectionProgress">0</span>/49</div>
         <button class="btn btn-outline btn-sm" onclick="openAllPacks()" id="btnOpenAll">⚡ 全部开启</button>
         <button class="btn btn-primary btn-sm" onclick="resetBox()">🔄 新盒</button>
+        <!-- 新增重置按钮 -->
+        <button class="btn btn-outline btn-sm" onclick="resetAllData()" style="border-color: rgba(255,100,100,0.5); color: #f08080;">🗑️ 重置数据</button>
     </div>
 
     <div class="packs-section">
@@ -588,7 +590,7 @@
 
     // ==================== 图鉴详情弹窗（可切换版本） ====================
     let currentCollectionCardId = null;
-    let currentCollectionVersion = 'normal'; // 'normal' | 'signature'
+    let currentCollectionVersion = 'normal';
 
     function showCollectionCardModal(cardId) {
         const def = allCardDefs.find(d=>d.id===cardId);
@@ -672,6 +674,25 @@
         document.body.appendChild(t);
         toastTimer = setTimeout(()=> t.remove(), 2100);
     }
+
+    // ==================== 重置数据 ====================
+    function resetAllData() {
+        if (!confirm('⚠️ 确定要清除所有开盒记录和图鉴收集进度吗？此操作无法恢复！')) return;
+        // 清空内存
+        totalBoxesOpened = 0;
+        collection = { normal: {}, signature: {} };
+        currentBox = null;
+        // 清空 localStorage
+        localStorage.removeItem('starcard_collection_v2');
+        localStorage.removeItem('starcard_totalBoxes');
+        localStorage.removeItem('starcard_currentBox');
+        // 重新生成一盒
+        generateNewBox();
+        renderAll();
+        showToast('🗑️ 所有数据已重置');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    window.resetAllData = resetAllData;
 
     // ==================== 重置 ====================
     function resetBox() {
