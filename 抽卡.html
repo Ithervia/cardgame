@@ -520,6 +520,35 @@
             bottom: 2px;
             right: 3px;
             font-size: 0.5em;
+        .collection-cell-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            border-radius: 4px;
+        }
+         .collection-cell .cell-emoji {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.1em;
+            z-index: 1;
+    /* 当图片加载失败时作为后备显示 */
+        }
+         .collection-cell .cell-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 3px;
+            font-size: 0.5em;
+            z-index: 2;
+            background: rgba(0,0,0,0.5);
+            border-radius: 2px;
+            padding: 0 2px;
+}
         }
 
         .modal-overlay {
@@ -1032,37 +1061,41 @@
                 }
             }
 
-            function renderCollectionGrid() {
+            function renderCollectionGrid(box, state) {
                 const grid = document.getElementById('collectionGrid');
                 grid.innerHTML = '';
+                const collection = state.collection;
+                // 卡背图路径（直接用卡盒的 basePath 拼接 card_back.png）
+                const cardBackUrl = box.basePath + 'card_back.png';
+
                 for (let i = 0; i < TOTAL_UNIQUE; i++) {
-                    const def = allCardDefs[i];
-                    const cell = document.createElement('div');
-                    cell.className = 'collection-cell';
+                    const def = box.cardDefs[i];
                     const hasNormal = collection.normal.has(def.id);
                     const hasSig = collection.signature.has(def.id);
 
-                    if (hasNormal && hasSig) {
-                        cell.classList.add('collected-both');
-                    } else if (hasSig) {
-                        cell.classList.add('collected-signature');
-                    } else if (hasNormal) {
-                        cell.classList.add('collected-normal');
-                    }
+                    const cell = document.createElement('div');
+                    cell.className = 'collection-cell';
+                    if (hasNormal && hasSig) cell.classList.add('collected-both');
+                    else if (hasSig) cell.classList.add('collected-signature');
+                    else if (hasNormal) cell.classList.add('collected-normal');
+
+                    // 决定显示哪张图片：收集了（普通或签名）显示普通版卡面，否则显示卡背
+                    const imgSrc = (hasNormal || hasSig) ? def.imageNormal : cardBackUrl;
 
                     cell.innerHTML = `
-                        <span class="cell-emoji">${def.emoji}</span>
+                        <img src="${imgSrc}" class="collection-cell-img" 
+                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" 
+                            alt="${def.name}">
+                        <span class="cell-emoji" style="display:${(hasNormal || hasSig) ? 'none' : 'flex'};">${def.emoji}</span>
                         <span class="cell-indicator">${hasSig ? '✍' : hasNormal ? '✓' : ''}</span>
-                    `;
-                    cell.title = `#${def.id} ${def.name} | 普通:${hasNormal ? '有' : '无'} 签名:${hasSig ? '有' : '无'}`;
-                    cell.style.background = (hasNormal || hasSig) ?
-                        `linear-gradient(135deg, ${def.color.bgLight}44, ${def.color.bg}44)` : '';
+        `;
+                    cell.title = `#${def.id} ${def.name} | 普通:${hasNormal?'有':'无'} 签名:${hasSig?'有':'无'}`;
+        // 移除原来的背景色设置，因为图片已经覆盖
+                    cell.style.background = '';
                     grid.appendChild(cell);
-                }
-                document.getElementById('collectionProgress').textContent =
-                    `${collection.normal.size + collection.signature.size}`;
-            }
-
+                  }
+               document.getElementById('collectionProgress').textContent = `${collection.normal.size + collection.signature.size}`;
+}
             function updateInfoBar() {
                 const openedCount = currentBox.openedPacks.size;
                 document.getElementById('openedCount').textContent = openedCount;
